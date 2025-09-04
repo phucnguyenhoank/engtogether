@@ -8,10 +8,17 @@
 </head>
 
 <body>
-  <h2>Grammar Checker</h2>
-  <textarea id="inputText" placeholder="Type here..." rows="6" cols="60"></textarea>
-  <div class="output" id="correctedText"></div>
-  <script src="/static/js/script.js"></script>
+  <div class="container">
+    <h2>Grammar Assistant</h2>
+    <textarea id="inputText"></textarea>
+    <div class="output" id="correctedText"></div>
+    <div class="diff-output" id="diffOutput"></div>
+  </div>
+
+  <script src="https://unpkg.com/diff/dist/diff.min.js"></script>
+  <script src="/static/js/script.js" defer></script>
+  <link rel="stylesheet" href="/static/css/styles.css">
 </body>
+
 
 </html>
