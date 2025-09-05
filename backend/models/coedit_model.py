@@ -1,44 +1,33 @@
+from spellchecker import SpellChecker
+import re
+
 class CoEdITModel:
     """A tiny simulated model that corrects a handful of misspellings.
     It uses a mapping and replaces whole words while attempting to preserve capitalization.
     """
     def __init__(self):
-        self.mapping = {
-            "teh": "the",
-            "recieve": "receive",
-            "langauge": "language",
-            "adress": "address",
-            "becuase": "because",
-        }
-
+        self.spell = SpellChecker(case_sensitive=True)
+    
+    @staticmethod
+    def tokenize(text):
+        tokens = re.findall(r"[\w']+|[.,!?;]", text)
+        return tokens
+    
     def correct(self, text: str) -> str:
-        text = text.split(":")[-1]
-        words = text.split()
-        corrected_words = []
+        content = text.split(":")[1]
+        tokens = CoEdITModel.tokenize(content)
 
-        for word in words:
-            # strip punctuation but remember it
-            prefix = ""
-            suffix = ""
-            core = word
+        misspelled = self.spell.unknown(tokens)
 
-            # handle punctuation like "adress," → core="adress"
-            while core and not core[0].isalnum():
-                prefix += core[0]
-                core = core[1:]
-            while core and not core[-1].isalnum():
-                suffix = core[-1] + suffix
-                core = core[:-1]
+        corrected_tokens = []
+        for token in tokens:
+            if token.lower() in misspelled:
+                corrected_tokens.append(self.spell.correction(token))
+            else:
+                corrected_tokens.append(token)
 
-            # check mapping (case-insensitive)
-            replacement = self.mapping.get(core.lower(), core)
+        corrected_text = " ".join(corrected_tokens)
+        # fix spacing before punctuation
+        corrected_text = re.sub(r"\s+([.,!?;])", r"\1", corrected_text)
 
-            # preserve capitalization
-            if core.istitle():
-                replacement = replacement.capitalize()
-            elif core.isupper():
-                replacement = replacement.upper()
-
-            corrected_words.append(prefix + replacement + suffix)
-
-        return " ".join(corrected_words)
+        return corrected_text
