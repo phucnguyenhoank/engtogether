@@ -1,6 +1,7 @@
 from pydantic import BaseModel
+import re
 
-INSTRUCTION = "Fix grammar and coherence"
+INSTRUCTION = "Rewrite to make this easier to understand"
 
 class CoEdITRequest(BaseModel):
     instruction: str = INSTRUCTION

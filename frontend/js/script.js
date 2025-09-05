@@ -1,11 +1,4 @@
-let timer;
-document.getElementById("inputText").addEventListener("input", () => {
-    clearTimeout(timer);
-    timer = setTimeout(sendText, 600); // debounce
-});
-
-
-async function sendText() {
+async function improveText() {
     const text = document.getElementById("inputText").value;
     if (!text.trim()) {
         document.getElementById("diffOutput").innerHTML = "";
