@@ -1,0 +1,27 @@
+.added {
+    background: #bdf7b1;  /* green highlight */
+    cursor: pointer;
+}
+.removed {
+    background: #f7bdb1;  /* red highlight */
+    text-decoration: line-through;
+}
+body {
+    font-family: sans-serif;
+    margin: 20px;
+}
+
+h4 {
+    font-style: italic;   /* ✅ makes text italic */
+    cursor: pointer;      /* optional: show hand cursor when hovering */
+}
+
+button {
+    margin: 5px;
+    padding: 5px 10px;
+}
+
+textarea {
+    width: 100%;
+    font-size: 16px;
+}

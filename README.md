@@ -1,64 +1,97 @@
-## Project tree
+# EngTogether ✍️
+
+A **FastAPI + Vanilla JS** project for writing exercises with AI features.
+
+---
+
+## 📂 Project Structure
 
 ```
 engtogether
-├─ .pytest_cache
-│  ├─ CACHEDIR.TAG
-│  ├─ README.md
-│  └─ v
-│     └─ cache
-│        ├─ lastfailed
-│        └─ nodeids
-├─ .python-version
-├─ backend
-│  ├─ api
-│  │  ├─ grammars.py
+├─ backend/                 # FastAPI backend
+│  ├─ api/                  # API routes (HTTP endpoints only)
+│  │  ├─ coedits.py
+│  │  ├─ spellings.py
 │  │  └─ __init__.py
-│  ├─ core
+│  ├─ core/                 # Core configs
 │  │  ├─ config.py
 │  │  └─ __init__.py
-│  ├─ main.py
-│  ├─ models
-│  │  ├─ grammar_model.py
+│  ├─ main.py               # FastAPI entrypoint
+│  ├─ models/               # ML/NLP models (thin wrappers)
+│  │  ├─ coedit_model.py
+│  │  ├─ spelling_model.py
 │  │  └─ __init__.py
-│  ├─ schemas
-│  │  ├─ grammar.py
+│  ├─ schemas/              # Pydantic request/response classes
+│  │  ├─ coedit.py
+│  │  ├─ spelling.py
 │  │  └─ __init__.py
-│  ├─ services
-│  │  ├─ grammar_service.py
+│  ├─ services/             # Business logic (glue between API & models)
+│  │  ├─ coedit_service.py
+│  │  ├─ spelling_service.py
 │  │  └─ __init__.py
 │  └─ __init__.py
-├─ frontend
-│  ├─ assets
-│  ├─ css
-│  │  └─ styles.css
-│  ├─ index.html
-│  └─ js
-│     └─ script.js
-├─ pyproject.toml
-├─ README.md
-├─ tests
-│  └─ test_grammar.py
-└─ uv.lock
-
+│
+├─ frontend/                # Static frontend (served by FastAPI)
+│  ├─ css/
+│  │  └─ style.css
+│  ├─ favicon.ico
+│  ├─ index.html            # Entry HTML
+│  └─ js/
+│     ├─ api.js             # Fetch wrappers for backend
+│     ├─ main.js            # App entrypoint
+│     ├─ ui.js              # DOM rendering
+│     └─ utils.js           # Helpers (debounce, etc.)
+│
+├─ tests/                   # Unit tests
+│  └─ test_coedit.py
+│
+├─ pyproject.toml           # Dependencies (Poetry / PDM style)
+├─ uv.lock                  # Lock file
+├─ short_syntax.ipynb       # Playground notebook
+├─ t.py                     # Scratch script
+├─ .python-version          # Python version pin
+└─ README.md
 ```
 
+---
 
-## Short descriptions
+## 📝 Key Components
 
-* `backend/api/grammars.py` — **routes** only. Receives HTTP requests and returns responses.
-* `backend/services/grammar_service.py` — business logic glue: calls the model, prepares results for the API.
-* `backend/models/grammar_model.py` — a thin wrapper that *simulates* your ML model.
-* `backend/schemas/grammar.py` — Pydantic request/response classes (validation + documentation).
-* `backend/core/config.py` — simple place for settings (CORS origin value used by FastAPI middleware).
-* `frontend/index.html` — tiny UI that posts text to the backend and shows corrected text.
-* `tests/` — unit tests for your service functions.
+* **`backend/api/*.py`** → Defines FastAPI routes only.
+* **`backend/services/*.py`** → Business logic (calls models, prepares responses).
+* **`backend/models/*.py`** → Thin wrappers simulating ML/NLP models.
+* **`backend/schemas/*.py`** → Pydantic request/response classes (validation + docs).
+* **`backend/core/config.py`** → Configuration (CORS, settings, env vars).
+* **`frontend/index.html`** → Minimal UI with exercises + buttons.
+* **`frontend/js/`** → Plain JS frontend (UI + API + utils).
+* **`tests/`** → Unit tests.
 
+---
 
-## How to run locally
+## 🚀 How to Run Locally
 
 From project root:
 
+### Option 1: With Uvicorn
+
 ```bash
-uvicorn backend.main:app --reload --port 8000
+uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000
 ```
+
+### Option 2: With FastAPI CLI (>=0.111.0)
+
+```bash
+fastapi dev backend/main.py --host 0.0.0.0 --port 8000
+```
+
+👉 Open [http://127.0.0.1:8000](http://127.0.0.1:8000) in your browser.  
+👉 Open [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs) to explore and test the API.
+
+---
+
+## 🧪 Running Tests
+
+```bash
+pytest tests/
+```
+
