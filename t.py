@@ -1,9 +1,22 @@
-from transformers import AutoTokenizer, T5ForConditionalGeneration
+from gec_t5 import generate
+from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 
-tokenizer = AutoTokenizer.from_pretrained("grammarly/coedit-large")
-model = T5ForConditionalGeneration.from_pretrained("grammarly/coedit-large")
-input_text = 'Rewrite to make this easier to understand: Today, I worked so hard, but my girlfriend '
-input_ids = tokenizer(input_text, return_tensors="pt").input_ids
-outputs = model.generate(input_ids, max_length=256)
-edited_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
-print(edited_text)
+model = AutoModelForSeq2SeqLM.from_pretrained("gotutiyan/gec-t5-base-clang8")
+tokenizer = AutoTokenizer.from_pretrained("gotutiyan/gec-t5-base-clang8")
+
+sentences = [
+    "what's you name?",
+    "what are you name?",
+    "today is my best day in HCM, it work so great",
+    "this is so   bad (good)",
+    "I doesn't like you"
+]
+
+predictions: list[str] = generate(
+    model=model,
+    tokenizer=tokenizer,
+    sources=sentences,
+    batch_size=32,
+    retok=True,
+)
+print("\n".join(predictions))

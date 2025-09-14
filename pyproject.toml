@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi[standard]>=0.116.1",
+    "gec-t5",
     "jupyter>=1.1.1",
     "levenshtein>=0.27.1",
     "pydantic-settings>=2.10.1",
@@ -13,3 +14,6 @@ dependencies = [
     "pytest>=8.4.1",
     "transformers>=4.56.0",
 ]
+
+[tool.uv.sources]
+gec-t5 = { git = "https://github.com/gotutiyan/gec-t5" }
