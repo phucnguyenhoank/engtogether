@@ -1,27 +1,105 @@
+/* ✅ Diff highlights */
 .added {
     background: #bdf7b1;  /* green highlight */
     cursor: pointer;
+    border-radius: 3px;
+    padding: 0 2px;
 }
 .removed {
     background: #f7bdb1;  /* red highlight */
     text-decoration: line-through;
+    border-radius: 3px;
+    padding: 0 2px;
 }
+
+/* ✅ Global */
 body {
-    font-family: sans-serif;
+    font-family: "Segoe UI", Roboto, sans-serif;
     margin: 20px;
+    background: #f9f9f9;
+    color: #333;
 }
 
 h4 {
-    font-style: italic;   /* ✅ makes text italic */
-    cursor: pointer;      /* optional: show hand cursor when hovering */
+    font-style: italic;
 }
 
+/* ✅ Buttons */
 button {
-    margin: 5px;
-    padding: 5px 10px;
+    margin: 6px 4px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    background: #2c7be5;
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+}
+button:hover {
+    background: #1a5bbf;
+}
+button:active {
+    transform: scale(0.97);
+}
+button:disabled {
+    background: #bbb;
+    cursor: not-allowed;
 }
 
+/* ✅ Textarea */
 textarea {
     width: 100%;
-    font-size: 16px;
+    font-size: 15px;
+    line-height: 1.5;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    resize: vertical;
+    font-family: inherit;
+    box-sizing: border-box;
+    background: #fff;
+    transition: border 0.2s, box-shadow 0.2s;
+}
+textarea:focus {
+    border-color: #2c7be5;
+    outline: none;
+    box-shadow: 0 0 5px rgba(44, 123, 229, 0.3);
+}
+
+/* ✅ Exercise card (as you had) */
+.exercise-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 14px;
+    margin: 12px 0;
+    background: #fff;
+    transition: box-shadow 0.2s;
+}
+.exercise-card:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+.exercise-title {
+    margin: 0;
+    color: #2c3e50;
+    cursor: pointer;
+}
+.exercise-desc {
+    font-size: 0.95em;
+    color: #555;
+    margin: 8px 0;
+}
+.exercise-tags {
+    margin-top: 8px;
+}
+.exercise-tags .tag {
+    display: inline-block;
+    background: #e0e0e0;
+    border-radius: 12px;
+    padding: 4px 10px;
+    margin-right: 6px;
+    font-size: 0.8em;
+    color: #333;
 }

@@ -1,7 +1,22 @@
 // api.js - handles communication with the backend.
 
+
+export async function fetchExercises() {
+    const response = await fetch("/exercises", {
+        method: "GET",
+        headers: {
+            "accept": "application/json",
+        },
+    });
+
+    if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`);
+    }
+    return response.json();
+}
+
 export async function improveText(text) {
-    const response = await fetch("/edit_text", {
+    const response = await fetch("/simplify_text", {
         method: "POST",
         headers: {
             "accept": "application/json",
@@ -18,8 +33,8 @@ export async function improveText(text) {
     return response.json();
 }
 
-export async function fixSpellingRequest(text) {
-    const resp = await fetch("/fix_spelling", {
+export async function fixGrammar(text) {
+    const resp = await fetch("/fix_grammar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text })
