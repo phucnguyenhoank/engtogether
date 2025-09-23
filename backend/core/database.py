@@ -154,5 +154,5 @@ def seed_exercises():
                     select(Tag).where(Tag.type == tag_type, Tag.name == tag_name)
                 ).first()
                 if tag:
-                    session.add(ExerciseTagLink(exercise=exercise, tag=tag, score=random.uniform(0, 10)))
+                    session.add(ExerciseTagLink(exercise=exercise, tag=tag, score=round(random.uniform(0, 10), 1)))
             session.commit()

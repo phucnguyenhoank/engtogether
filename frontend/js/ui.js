@@ -1,6 +1,6 @@
 // ui.js - handles DOM rendering and event binding.
 import { fixGrammar, improveText, fetchExercises } from "./api.js";
-import { debounce } from "./utils.js";
+import { debounce, pickStyleEndpoint } from "./utils.js";
 
 let exercises = []; // will be loaded dynamically
 
@@ -31,10 +31,10 @@ export async function showHomePage() {
             // Tags
             let tags = document.createElement("div");
             tags.className = "exercise-tags";
-            ex.tag_names.forEach(tag => {
+            ex.tags.forEach(tag => {
                 let span = document.createElement("span");
                 span.className = "tag";
-                span.innerText = tag;
+                span.innerText = tag.name + " - " + tag.score;
                 tags.appendChild(span);
             });
 
@@ -63,7 +63,7 @@ export function showExercisePage(exercise) {
     `;
 
     // "Improve" → simplify text
-    document.getElementById("improveBtn").addEventListener("click", handleImprove);
+    document.getElementById("improveBtn").addEventListener("click", () => handleImprove(exercise));
 
     // Grammar fixing (live, replaces spelling)
     const debouncedFixGrammar = debounce(handleFixGrammar, 600);
@@ -71,7 +71,7 @@ export function showExercisePage(exercise) {
 }
 
 
-async function handleImprove() {
+async function handleImprove(exercise) {
     const text = document.getElementById("exerciseText").value;
     const output = document.getElementById("diffOutput");
 
@@ -82,7 +82,8 @@ async function handleImprove() {
 
     output.innerText = "⏳ Improving...";
     try {
-        const data = await improveText(text);
+        const endpoint = pickStyleEndpoint(exercise.tags);
+        const data = await improveText(text, endpoint);
         const diffs = Diff.diffWords(data.old_text, data.improved_text);
 
         let html = "";

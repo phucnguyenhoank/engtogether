@@ -15,8 +15,8 @@ export async function fetchExercises() {
     return response.json();
 }
 
-export async function improveText(text) {
-    const response = await fetch("/simplify_text", {
+export async function improveText(text, endpoint="simplify_text") {
+    const response = await fetch("/" + endpoint, {
         method: "POST",
         headers: {
             "accept": "application/json",

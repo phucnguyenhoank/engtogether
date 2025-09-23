@@ -1,20 +1,28 @@
 from fastapi import HTTPException
 from sqlmodel import Session, select
 from backend.core.models import Exercise, ExerciseTagLink, Tag
-from backend.schemas.exercise import ExerciseCreate, ExerciseRead
+from backend.schemas.exercise import ExerciseCreate, ExerciseRead, ExerciseTagBase
 
 
 def read_exercises(session: Session) -> list[ExerciseRead]:
     exercises = session.exec(select(Exercise)).all()
     results = []
     for ex in exercises:
-        tag_names = [link.tag.name for link in ex.tags_links if link.tag]
+        exercise_tags = [
+            ExerciseTagBase(
+                tag_id=link.tag_id,
+                name=link.tag.name,
+                type=link.tag.type,
+                score=link.score
+            )
+            for link in ex.tags_links
+        ]
         results.append(
             ExerciseRead(
                 id=ex.id,
                 title=ex.title,
                 description=ex.description,
-                tag_names=tag_names,
+                tags=exercise_tags,
             )
         )
     return results

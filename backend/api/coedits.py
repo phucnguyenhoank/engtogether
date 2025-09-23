@@ -45,6 +45,16 @@ async def make_neutral_endpoint(req: CoEdITRequest):
     )
 
 
+@router.post("/make_informal", response_model=CoEdITResponse)
+async def make_informal_endpoint(req: CoEdITRequest):
+    improved_text = service.make_informal(req.text)
+    return CoEdITResponse(
+        instruction="Make this informal",
+        old_text=req.text,
+        improved_text=improved_text,
+    )
+
+
 @router.post("/paraphrase", response_model=CoEdITResponse)
 async def paraphrase_endpoint(req: CoEdITRequest):
     improved_text = service.paraphrase(req.text)

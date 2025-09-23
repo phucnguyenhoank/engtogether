@@ -25,6 +25,10 @@ def make_neutral(text: str) -> str:
     return _apply_instruction(text, "Write in a more neutral way")
 
 
+def make_informal(text: str) -> str:
+    return _apply_instruction(text, "Make this informal")
+
+
 def paraphrase(text: str) -> str:
     return _apply_instruction(text, "Paraphrase this")
 

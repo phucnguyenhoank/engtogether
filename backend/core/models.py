@@ -2,7 +2,7 @@ from sqlmodel import SQLModel, Field, Relationship
 
 class Tag(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
-    name: str
+    name: str    # academic, business, formal, informal, neutral
     type: str    # genre, formality, purpose, audience, etc.
 
     exercises_links: list["ExerciseTagLink"] = Relationship(back_populates="tag")
