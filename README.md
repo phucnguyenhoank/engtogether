@@ -8,49 +8,57 @@ A **FastAPI + Vanilla JS** project for writing exercises with AI features.
 
 ```
 engtogether
-├─ backend/                 # FastAPI backend
-│  ├─ api/                  # API routes (HTTP endpoints only)
+├─ .python-version
+├─ backend
+│  ├─ api
 │  │  ├─ coedits.py
+│  │  ├─ exercises.py
 │  │  ├─ spellings.py
 │  │  └─ __init__.py
-│  ├─ core/                 # Core configs
+│  ├─ core
 │  │  ├─ config.py
+│  │  ├─ database.py
+│  │  ├─ models.py
 │  │  └─ __init__.py
-│  ├─ main.py               # FastAPI entrypoint
-│  ├─ models/               # ML/NLP models (thin wrappers)
+│  ├─ main.py
+│  ├─ models
 │  │  ├─ coedit_model.py
+│  │  ├─ pygect5_model.py
 │  │  ├─ spelling_model.py
 │  │  └─ __init__.py
-│  ├─ schemas/              # Pydantic request/response classes
+│  ├─ schemas
 │  │  ├─ coedit.py
+│  │  ├─ exercise.py
 │  │  ├─ spelling.py
 │  │  └─ __init__.py
-│  ├─ services/             # Business logic (glue between API & models)
+│  ├─ services
 │  │  ├─ coedit_service.py
+│  │  ├─ exercise_service.py
+│  │  ├─ pygect5_service.py
 │  │  ├─ spelling_service.py
 │  │  └─ __init__.py
+│  ├─ utils
+│  │  ├─ text_processing.py
+│  │  └─ __init__.py
 │  └─ __init__.py
-│
-├─ frontend/                # Static frontend (served by FastAPI)
-│  ├─ css/
+├─ frontend
+│  ├─ css
 │  │  └─ style.css
 │  ├─ favicon.ico
-│  ├─ index.html            # Entry HTML
-│  └─ js/
-│     ├─ api.js             # Fetch wrappers for backend
-│     ├─ main.js            # App entrypoint
-│     ├─ ui.js              # DOM rendering
-│     └─ utils.js           # Helpers (debounce, etc.)
-│
-├─ tests/                   # Unit tests
+│  ├─ index.html
+│  └─ js
+│     ├─ api.js
+│     ├─ main.js
+│     ├─ ui.js
+│     └─ utils.js
+├─ pyproject.toml
+├─ README.md
+├─ short_syntax.ipynb
+├─ t.py
+├─ tests
 │  └─ test_coedit.py
-│
-├─ pyproject.toml           # Dependencies (Poetry / PDM style)
-├─ uv.lock                  # Lock file
-├─ short_syntax.ipynb       # Playground notebook
-├─ t.py                     # Scratch script
-├─ .python-version          # Python version pin
-└─ README.md
+└─ uv.lock
+
 ```
 
 ---
@@ -81,7 +89,7 @@ uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000
 ### Option 2: With FastAPI CLI (>=0.111.0)
 
 ```bash
-fastapi dev backend/main.py --host 0.0.0.0 --port 8000
+fastapi dev backend/main.py --host localhost --port 8000
 ```
 
 👉 Open [http://127.0.0.1:8000](http://127.0.0.1:8000) in your browser.  

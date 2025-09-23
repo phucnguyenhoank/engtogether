@@ -12,6 +12,7 @@ dependencies = [
     "pydantic-settings>=2.10.1",
     "pyspellchecker>=0.8.3",
     "pytest>=8.4.1",
+    "sqlmodel>=0.0.25",
     "transformers>=4.56.0",
 ]
 

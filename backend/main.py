@@ -2,13 +2,21 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
-from backend.api import coedits, spellings
+from backend.api import coedits, spellings, exercises
 from backend.core.config import settings
+from backend.core.database import create_db_and_tables, seed_tags, seed_exercises
 
 
-app = FastAPI(title="EngTogether - Grammar API")
+create_db_and_tables()
+seed_tags()
+seed_exercises()
+
+app = FastAPI(title="EngTogether API")
+
+
 app.include_router(coedits.router)
 app.include_router(spellings.router)
+app.include_router(exercises.router)
 
 app.mount("/static", StaticFiles(directory="frontend"), name="static")
 
