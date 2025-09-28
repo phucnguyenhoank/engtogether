@@ -89,7 +89,7 @@ uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000
 ### Option 2: With FastAPI CLI (>=0.111.0)
 
 ```bash
-fastapi dev backend/main.py --host localhost --port 8000
+fastapi dev backend/main.py --host 0.0.0.0 --port 8000
 ```
 
 👉 Open [http://127.0.0.1:8000](http://127.0.0.1:8000) in your browser.  
