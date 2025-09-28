@@ -1,26 +1,40 @@
 from sqlmodel import create_engine, SQLModel, Session, select
-from backend.core.models import Tag, Exercise, ExerciseTagLink
+from backend.core.models import Tag, Exercise, ExerciseTagLink, User, UserTagLink, Interaction
 from typing import Iterator
 import random
+import hashlib
+
 
 DATABASE_FILENAME = "database.db"
 DATABASE_URL = f"sqlite:///{DATABASE_FILENAME}"
 
+
 engine = create_engine(DATABASE_URL, echo=True)
+
 
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
+
 
 def get_session() -> Iterator[Session]:
     with Session(engine) as session:
         yield session
 
+
 def seed_tags():
     tags_data = {
-        "genre": ["narrative", "descriptive", "expository", "persuasive", "business", "academic", "creative writing"],
+        # --- User tags ---
+        "proficiency": ["beginner", "intermediate", "advanced"],   # unique per user
+        "goal": ["exam", "career", "hobby"],
+        "interest": ["academic", "business", "casual", "creative"],
+
+        # --- Exercise tags ---
+        "genre": ["academic", "business", "creative writing", "persuasive",
+                  "expository", "descriptive", "narrative"],
         "formality": ["formal", "informal", "neutral"],
         "purpose": ["inform", "persuade", "entertain", "explain", "analyze", "summarize"],
-        "audience": ["general public", "students", "teachers", "employer", "colleagues", "customers"],
+        "audience": ["students", "teachers", "employer", "colleagues"],
+        "difficulty": ["beginner", "intermediate", "advanced"],   # unique per exercise
     }
 
     with Session(engine) as session:
@@ -33,126 +47,158 @@ def seed_tags():
                     session.add(Tag(name=name, type=tag_type))
         session.commit()
 
+
 def seed_exercises():
-    exercises_data = [
-        {
-            "title": "Write a short story about a childhood memory",
-            "description": "Practice narrative writing by recalling a memorable childhood experience.",
-            "tags": [("genre", "narrative"), ("purpose", "entertain"), ("audience", "general public")]
-        },
-        {
-            "title": "Describe your favorite place",
-            "description": "Practice descriptive writing with vivid details about a familiar location.",
-            "tags": [("genre", "descriptive"), ("purpose", "inform"), ("audience", "students")]
-        },
-        {
-            "title": "Explain how photosynthesis works",
-            "description": "Practice expository writing with a scientific explanation.",
-            "tags": [("genre", "expository"), ("purpose", "explain"), ("audience", "teachers")]
-        },
-        {
-            "title": "Convince your friend to adopt a healthy lifestyle",
-            "description": "Practice persuasive writing by arguing for healthy choices.",
-            "tags": [("genre", "persuasive"), ("purpose", "persuade"), ("audience", "students")]
-        },
-        {
-            "title": "Write a formal business email to request information",
-            "description": "Practice business writing in a professional setting.",
-            "tags": [("genre", "business"), ("formality", "formal"), ("audience", "employer")]
-        },
-        {
-            "title": "Summarize the article about climate change",
-            "description": "Practice academic summarizing skills.",
-            "tags": [("genre", "academic"), ("purpose", "summarize"), ("audience", "teachers")]
-        },
-        {
-            "title": "Write a creative short poem about friendship",
-            "description": "Practice creative writing through poetry.",
-            "tags": [("genre", "creative writing"), ("purpose", "entertain"), ("audience", "general public")]
-        },
-        {
-            "title": "Explain the rules of your favorite sport",
-            "description": "Expository writing focusing on clarity and structure.",
-            "tags": [("genre", "expository"), ("purpose", "inform"), ("audience", "students")]
-        },
-        {
-            "title": "Write a casual message to your friend about your weekend",
-            "description": "Practice informal writing in a friendly tone.",
-            "tags": [("formality", "informal"), ("purpose", "inform"), ("audience", "friends")]
-        },
-        {
-            "title": "Analyze the theme of justice in a short story",
-            "description": "Practice academic analysis with textual evidence.",
-            "tags": [("genre", "academic"), ("purpose", "analyze"), ("audience", "teachers")]
-        },
-        {
-            "title": "Write an email to a customer apologizing for a late delivery",
-            "description": "Business writing with a professional and empathetic tone.",
-            "tags": [("genre", "business"), ("formality", "formal"), ("audience", "customers")]
-        },
-        {
-            "title": "Create a product description for a new smartphone",
-            "description": "Persuasive writing focusing on marketing.",
-            "tags": [("genre", "business"), ("purpose", "persuade"), ("audience", "customers")]
-        },
-        {
-            "title": "Summarize a TED Talk in 150 words",
-            "description": "Concise academic summarization exercise.",
-            "tags": [("genre", "academic"), ("purpose", "summarize"), ("audience", "students")]
-        },
-        {
-            "title": "Write a story starting with 'It was a dark and stormy night...'",
-            "description": "Creative writing prompt to spark imagination.",
-            "tags": [("genre", "creative writing"), ("purpose", "entertain"), ("audience", "general public")]
-        },
-        {
-            "title": "Explain how to cook your favorite dish",
-            "description": "Instructional expository writing exercise.",
-            "tags": [("genre", "expository"), ("purpose", "explain"), ("audience", "students")]
-        },
-        {
-            "title": "Write a formal cover letter for a job application",
-            "description": "Business writing focusing on professionalism.",
-            "tags": [("genre", "business"), ("formality", "formal"), ("audience", "employer")]
-        },
-        {
-            "title": "Write a persuasive essay on why reading is important",
-            "description": "Formal persuasive writing with supporting arguments.",
-            "tags": [("genre", "persuasive"), ("formality", "formal"), ("purpose", "persuade"), ("audience", "teachers")]
-        },
-        {
-            "title": "Describe your daily routine in English",
-            "description": "Simple descriptive writing exercise for beginners.",
-            "tags": [("genre", "descriptive"), ("purpose", "inform"), ("audience", "students")]
-        },
-        {
-            "title": "Analyze a character from your favorite movie",
-            "description": "Practice academic writing with critical thinking.",
-            "tags": [("genre", "academic"), ("purpose", "analyze"), ("audience", "students")]
-        },
-        {
-            "title": "Write a short dialogue between two friends arguing",
-            "description": "Creative writing focused on dialogue and voice.",
-            "tags": [("genre", "creative writing"), ("formality", "informal"), ("audience", "general public")]
-        },
+    # Sample exercise templates
+    exercise_templates = [
+        ("Write a formal email to your professor", "Practice writing a polite, academic email.", 10, 150),
+        ("Describe your favorite holiday memory", "Focus on descriptive writing using sensory details.", 15, 200),
+        ("Write a business proposal", "Draft a concise business proposal for a new product.", 25, 300),
+        ("Summarize a news article", "Practice condensing information into a short summary.", 12, 180),
+        ("Write a persuasive essay about social media", "Argue for or against the impact of social media.", 30, 400),
+        ("Create a story about a mysterious event", "Use narrative style and build suspense.", 20, 350),
+        ("Explain how to cook your favorite dish", "Instructional/expository writing exercise.", 18, 250),
+        ("Write an informal message to a friend", "Practice casual tone and personal style.", 5, 80),
+        ("Draft a cover letter for a job", "Focus on professional tone and purpose.", 22, 300),
+        ("Analyze a poem of your choice", "Critical analysis and academic tone.", 28, 400),
+    ]
+
+    # Fetch tags by type
+    with Session(engine) as session:
+        tags_by_type = {}
+        tag_types = ["genre", "formality", "purpose", "audience", "difficulty"]
+        for t in tag_types:
+            tags_by_type[t] = session.exec(select(Tag).where(Tag.type == t)).all()
+
+        # Create at least 30 exercises (reusing templates with variations)
+        for i in range(30):
+            title, desc, est_time, min_words = random.choice(exercise_templates)
+
+            exercise = Exercise(
+                title=f"{title} (v{i+1})",  # avoid duplicates
+                description=desc,
+                estimated_time_min=est_time,
+                min_words=min_words,
+            )
+            session.add(exercise)
+
+            # Assign 1 tag from each category
+            for tag_type, tags in tags_by_type.items():
+                if tags:
+                    chosen_tag = random.choice(tags)
+                    session.add(
+                        ExerciseTagLink(tag_id=chosen_tag.id, score=5.0, exercise=exercise)
+                    )
+
+        session.commit()
+
+
+def fake_password_hash(password: str) -> str:
+    # For demo purposes only (replace with real hashing in production, e.g., bcrypt)
+    return hashlib.sha256(password.encode("utf-8")).hexdigest()
+
+
+def seed_users():
+    usernames = [
+        "alice", "bob", "charlie", "diana", "eva",
+        "frank", "grace", "henry", "irene", "jack"
     ]
 
     with Session(engine) as session:
-        for ex in exercises_data:
-            # Check if it already exists
-            exists = session.exec(
-                select(Exercise).where(Exercise.title == ex["title"])
-            ).first()
+        # Load tags
+        prof_tags = session.exec(select(Tag).where(Tag.type == "proficiency")).all()
+        goal_tags = session.exec(select(Tag).where(Tag.type == "goal")).all()
+        interest_tags = session.exec(select(Tag).where(Tag.type == "interest")).all()
+
+        for i, username in enumerate(usernames):
+            email = f"{username}@example.com"
+            exists = session.exec(select(User).where(User.email == email)).first()
             if exists:
                 continue
 
-            exercise = Exercise(title=ex["title"], description=ex["description"])
+            user = User(
+                username=username,
+                email=email,
+                password_hash=fake_password_hash("password123"),
+            )
+            session.add(user)
 
-            # Attach tags
-            for tag_type, tag_name in ex["tags"]:
-                tag = session.exec(
-                    select(Tag).where(Tag.type == tag_type, Tag.name == tag_name)
+            # --- Assign tags ---
+            # Proficiency: exactly 1
+            prof = random.choice(prof_tags)
+            session.add(UserTagLink(user=user, tag_id=prof.id, weight=1.0))
+
+            # Goals: 1–2
+            for goal in random.sample(goal_tags, k=random.randint(1, 2)):
+                session.add(UserTagLink(user=user, tag_id=goal.id, weight=1.0))
+
+            # Interests: 2–3
+            for interest in random.sample(interest_tags, k=random.randint(2, 3)):
+                session.add(UserTagLink(user=user, tag_id=interest.id, weight=1.0))
+
+        session.commit()
+
+
+def seed_interactions():
+    sample_reviews = [
+        "Very helpful exercise!",
+        "A bit too easy for me.",
+        "Challenging but rewarding.",
+        "Didn't really like the topic.",
+        "Great practice, will try again.",
+        "Too difficult, need more hints.",
+        "Clear instructions and useful.",
+    ]
+    with Session(engine) as session:
+        users = session.exec(select(User)).all()
+        exercises = session.exec(select(Exercise)).all()
+
+        for user in users:
+            # Pick 5–10 random exercises for this user
+            chosen_exercises = random.sample(exercises, k=random.randint(5, 10))
+
+            for ex in chosen_exercises:
+                # Check if already exists (avoid duplicates)
+                exists = session.exec(
+                    select(Interaction).where(
+                        Interaction.user_id == user.id,
+                        Interaction.exercise_id == ex.id
+                    )
                 ).first()
-                if tag:
-                    session.add(ExerciseTagLink(exercise=exercise, tag=tag, score=round(random.uniform(0, 10), 1)))
-            session.commit()
+                if exists:
+                    continue
+
+                finished = random.random() < 0.6   # 60% chance
+                quick_bounce = not finished and (random.random() < 0.3)
+
+                fav = None
+                rating = None
+                review = None
+                time_spent_sec = random.randint(0, 60 * 3)
+
+                if finished:
+                    fav = random.choice([True, True, False, None, None])
+                    rating = random.choices([3, 4, 5], weights=[2, 3, 4])[0]
+                    review = random.choice(sample_reviews)
+                elif quick_bounce:
+                    fav = False
+                    rating = random.choice([1, 2])
+                else:
+                    # just clicked and left
+                    if random.random() < 0.2:
+                        rating = 3
+
+                interaction = Interaction(
+                    user_id=user.id,
+                    exercise_id=ex.id,
+                    click_within_30s=quick_bounce,
+                    finished=finished,
+                    fav=fav,
+                    rating=rating,
+                    review=review,
+                    time_spent_sec=time_spent_sec
+                )
+                session.add(interaction)
+
+        session.commit()
+

@@ -1,17 +1,28 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from backend.api import coedits, spellings, exercises
 from backend.core.config import settings
-from backend.core.database import create_db_and_tables, seed_tags, seed_exercises
+from backend.core.database import create_db_and_tables, seed_tags, seed_exercises, seed_users, seed_interactions
 
 
-create_db_and_tables()
-seed_tags()
-seed_exercises()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # This code runs *before* the application starts serving requests
+    create_db_and_tables()
+    seed_tags()
+    seed_exercises()
+    seed_users()
+    seed_interactions()
 
-app = FastAPI(title="EngTogether API")
+    yield  # after this, the app runs
+
+    # This code runs when the app is shutting down (after all requests are done)
+    # (You can put cleanup code here if needed)
+
+app = FastAPI(title="EngTogether API", lifespan=lifespan)
 
 
 app.include_router(coedits.router)
